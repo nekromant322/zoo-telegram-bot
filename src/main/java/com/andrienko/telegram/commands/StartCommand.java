@@ -1,8 +1,5 @@
 package com.andrienko.telegram.commands;
 
-import com.andrienko.telegram.AnimalRequest;
-import com.andrienko.telegram.AnimalRequestService;
-import com.andrienko.telegram.commands.ZooCommand;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -43,7 +40,7 @@ public class StartCommand extends ZooCommand {
         replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setOneTimeKeyboard(false);
         keyboardRowFirst.add("Подать новую заявку");
-        keyboardRowSecond.add("Подробнее о функциях бота");
+        keyboardRowSecond.add("Меню");
         keyboardRows.add(keyboardRowFirst);
         keyboardRows.add(keyboardRowSecond);
         replyKeyboardMarkup.setKeyboard(keyboardRows);

@@ -1,5 +1,7 @@
 package com.andrienko.telegram.commands;
 
+
+import enums.AnimalType;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -20,30 +22,16 @@ public class SetAnimalTypeCommand extends ZooCommand {
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-
-
-        List<InlineKeyboardButton> keyboardButtonRowFirst = new ArrayList<>();
-        InlineKeyboardButton inlineKeyboardButtonFirst = new InlineKeyboardButton();
-        inlineKeyboardButtonFirst.setText("Кошка");
-        inlineKeyboardButtonFirst.setCallbackData("Кошка");
-        keyboardButtonRowFirst.add(inlineKeyboardButtonFirst);
-
-        List<InlineKeyboardButton> keyboardButtonRowSecond = new ArrayList<>();
-        InlineKeyboardButton inlineKeyboardButtonSecond = new InlineKeyboardButton();
-        inlineKeyboardButtonSecond.setText("Собака");
-        inlineKeyboardButtonSecond.setCallbackData("Собака");
-        keyboardButtonRowSecond.add(inlineKeyboardButtonSecond);
-
-        List<InlineKeyboardButton> keyboardButtonRowThird = new ArrayList<>();
-        InlineKeyboardButton inlineKeyboardButtonThird = new InlineKeyboardButton();
-        inlineKeyboardButtonThird.setText("Грызун");
-        inlineKeyboardButtonThird.setCallbackData("Грызун");
-        keyboardButtonRowThird.add(inlineKeyboardButtonThird);
-
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-        rowList.add(keyboardButtonRowFirst);
-        rowList.add(keyboardButtonRowSecond);
-        rowList.add(keyboardButtonRowThird);
+        AnimalType[] animalTypes = AnimalType.values();
+        for (int i = 0; i < animalTypes.length; i++) {
+            List<InlineKeyboardButton> keyboardButtonRow = new ArrayList<>();
+            InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+            inlineKeyboardButton.setText(animalTypes[i].russianName);
+            inlineKeyboardButton.setCallbackData(animalTypes[i].name);
+            keyboardButtonRow.add(inlineKeyboardButton);
+            rowList.add(keyboardButtonRow);
+        }
         inlineKeyboardMarkup.setKeyboard(rowList);
 
         SendMessage message = new SendMessage();
