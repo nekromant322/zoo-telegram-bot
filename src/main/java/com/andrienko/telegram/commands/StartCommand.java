@@ -35,14 +35,17 @@ public class StartCommand extends ZooCommand {
         SendMessage message = new SendMessage();
         message.setReplyMarkup(replyKeyboardMarkup);
         List<KeyboardRow> keyboardRows = new ArrayList<>();
-        KeyboardRow keyboardRowFirst = new KeyboardRow();
-        KeyboardRow keyboardRowSecond = new KeyboardRow();
+        List<String> arrayList = new ArrayList<>();
+        arrayList.add("Подать новую заявку");
+        arrayList.add("Меню");
+        arrayList.add("Отправить заявку");
+        for (int i = 0; i < arrayList.size(); i++) {
+            KeyboardRow keyboardRow = new KeyboardRow();
+            keyboardRow.add(arrayList.get(i));
+            keyboardRows.add(keyboardRow);
+        }
         replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setOneTimeKeyboard(false);
-        keyboardRowFirst.add("Подать новую заявку");
-        keyboardRowSecond.add("Меню");
-        keyboardRows.add(keyboardRowFirst);
-        keyboardRows.add(keyboardRowSecond);
         replyKeyboardMarkup.setKeyboard(keyboardRows);
         message.setChatId(chat.getId().toString());
         message.setText(sb.toString());

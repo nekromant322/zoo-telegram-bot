@@ -17,7 +17,7 @@ import java.util.List;
 public class SetRoomTypeCommand extends ZooCommand{
 
     public SetRoomTypeCommand() {
-        super("set_room_type", "Выбрать тип животного\n");
+        super("set_room_type", "Выбрать тип комнаты\n");
     }
 
     @Override

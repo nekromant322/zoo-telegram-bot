@@ -1,8 +1,6 @@
 package com.andrienko.telegram;
 
-import com.andrienko.telegram.commands.SetAnimalTypeCommand;
-import com.andrienko.telegram.commands.SetRoomTypeCommand;
-import com.andrienko.telegram.commands.StartCommand;
+import com.andrienko.telegram.commands.*;
 import dto.AnimalRequestDTO;
 import enums.AnimalType;
 import enums.RoomType;
@@ -23,10 +21,19 @@ import java.util.Map;
 
 @Component
 public class ZooHotelBot extends TelegramLongPollingCommandBot {
-    @Autowired
-    private ReplyMessageService replyMessageService;
 
-    Map<Long, AnimalRequestDTO> cachedAnimalRequestData = new HashMap<>();
+    private final ReplyMessageService replyMessageService;
+    private AnimalRequestDTOService animalRequestDTOService;
+    private SetNameCommand setNameCommand;
+    private SetSurnameCommand setSurnameCommand;
+    private SetPhoneCommand setPhoneCommand;
+    private SetEmailCommand setEmailCommand;
+    private SetAnimalNameCommand setAnimalNameCommand;
+    private SetAnimalTypeCommand setAnimalTypeCommand;
+    private SetRoomTypeCommand setRoomTypeCommand;
+private StartCommand startCommand;
+private SetBeginDateCommand setBeginDateCommand;
+private SetEndDateCommand setEndDateCommand;
     Map<String, String> messages = new HashMap<>();
     AnimalType[] animalTypes = AnimalType.values();
     RoomType[] roomTypes = RoomType.values();
@@ -37,13 +44,28 @@ public class ZooHotelBot extends TelegramLongPollingCommandBot {
     @Value("${bot.token}")
     private String botToken;
 
-    public ZooHotelBot() {
+    @Autowired
+    public ZooHotelBot(SetNameCommand setNameCommand, SetSurnameCommand setSurnameCommand, SetPhoneCommand setPhoneCommand,
+                       SetEmailCommand setEmailCommand, SetAnimalNameCommand setAnimalNameCommand,
+                       SetAnimalTypeCommand setAnimalTypeCommand, SetRoomTypeCommand setRoomTypeCommand,StartCommand startCommand,
+                       ReplyMessageService replyMessageService, AnimalRequestDTOService animalRequestDTOService,
+                       SetBeginDateCommand setBeginDateCommand,SetEndDateCommand setEndDateCommand) {
         super();
-        register(new StartCommand());
-        register(new SetAnimalTypeCommand());
-        register(new SetRoomTypeCommand());
+        this.setNameCommand = setNameCommand;
+        this.setSurnameCommand = setSurnameCommand;
+        this.setPhoneCommand = setPhoneCommand;
+        this.setEmailCommand = setEmailCommand;
+        this.setAnimalNameCommand = setAnimalNameCommand;
+        this.setAnimalTypeCommand = setAnimalTypeCommand;
+        this.setRoomTypeCommand = setRoomTypeCommand;
+        this.replyMessageService = replyMessageService;
+        this.animalRequestDTOService = animalRequestDTOService;
+        this.startCommand = startCommand;
+        this.setBeginDateCommand = setBeginDateCommand;
+        this.setEndDateCommand = setEndDateCommand;
+        registerAll(setNameCommand, setSurnameCommand, setPhoneCommand, setEmailCommand,
+                setAnimalNameCommand, setAnimalTypeCommand, setRoomTypeCommand,startCommand,setBeginDateCommand,setEndDateCommand);
     }
-
 
     @Override
     public String getBotUsername() {
@@ -52,12 +74,14 @@ public class ZooHotelBot extends TelegramLongPollingCommandBot {
 
     @Override
     public void processNonCommandUpdate(Update update) {
-        AnimalRequestDTO animalRequestDTO = new AnimalRequestDTO();
+
         if (update.hasMessage()) {
+//            AnimalRequestDTO animalRequestDTO = animalRequestDTOService.findDTOByChatId(update.getMessage().getChatId())
             sendMessage(update);
         } else if (update.hasCallbackQuery()) {
             String callBackData = update.getCallbackQuery().getData();
             String callBackId = update.getCallbackQuery().getId();
+            AnimalRequestDTO animalRequestDTO = animalRequestDTOService.findDTOByChatId(update.getUpdateId().longValue());
             AnswerCallbackQuery answerCallbackQuery = replyMessageService.getPopUpAnswer(callBackId, "Тип не установлен");
 
             for (int i = 0; i < animalTypes.length; i++) {
@@ -79,7 +103,7 @@ public class ZooHotelBot extends TelegramLongPollingCommandBot {
             }
         }
     }
-    
+
     private void setAnswer(Long chatId, String userName, String text) {
         SendMessage answer = new SendMessage();
         answer.setText(text);
@@ -107,9 +131,17 @@ public class ZooHotelBot extends TelegramLongPollingCommandBot {
         sendMessage.setChatId(String.valueOf(update.getMessage().getChatId()));
         messages.put("Подать новую заявку", "Для того чтобы выбрать тип животного нажмите /set_animal_type");
         messages.put("Меню", "/set_animal_type выбрать тип животного\n/set_room_type выбрать тип комнаты");
+        messages.put("Отправить заявку","Отправляю данные");
         for (Map.Entry<String, String> messagesMap : messages.entrySet()) {
             if (update.getMessage().getText().equals(messagesMap.getKey())) {
                 sendMessage.setText(messagesMap.getValue());
+                if(update.getMessage().equals("Отправить заявку")){
+                    try{
+                        animalRequestDTOService.sendDTO(update.getUpdateId().longValue());
+                    }catch (Exception e){
+                        sendMessage.setText("Заявка не отправлена, возникли проблемы");
+                    }
+                }
             }
         }
         try {
