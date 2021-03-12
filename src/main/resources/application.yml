@@ -1,3 +1,11 @@
 bot:
   name: ${TELEGRAM_BOT_NAME}
   token: ${TELEGRAM_BOT_TOKEN}
+
+server:
+  port: 8081
+
+spring:
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
