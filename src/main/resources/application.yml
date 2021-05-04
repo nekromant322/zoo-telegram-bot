@@ -9,3 +9,5 @@ spring:
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
+
+url: 'http://localhost:8080/api/animalRequestPage'

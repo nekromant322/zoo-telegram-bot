@@ -6,6 +6,7 @@ import dto.AnimalRequestDTO;
 import enums.AnimalType;
 import enums.RoomType;
 import lombok.SneakyThrows;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -27,8 +28,6 @@ public class ZooHotelBot extends TelegramLongPollingCommandBot {
     private final ReplyMessageService replyMessageService;
     private final AnimalRequestDTOService animalRequestDTOService;
     Map<String, String> messages = new HashMap<>();
-    AnimalType[] animalTypes = AnimalType.values();
-    RoomType[] roomTypes = RoomType.values();
 
     @Value("${bot.name}")
     private String botName;
@@ -66,16 +65,16 @@ public class ZooHotelBot extends TelegramLongPollingCommandBot {
             AnimalRequestDTO animalRequestDTO = animalRequestDTOService.findDTOByChatId(update.getCallbackQuery().getFrom().getId());
             AnswerCallbackQuery answerCallbackQuery = replyMessageService.getPopUpAnswer(callBackId, "Тип не установлен");
 
-            for (int i = 0; i < animalTypes.length; i++) {
-                if (callBackData.equals(animalTypes[i].name)) {
-                    animalRequestDTO.setAnimalType(animalTypes[i]);
-                    answerCallbackQuery = replyMessageService.getPopUpAnswer(callBackId, "Тип животного " + animalTypes[i].russianName + " установлен");
+            for (int i = 0; i < AnimalType.values().length; i++) {
+                if (callBackData.equals(AnimalType.values()[i].name)) {
+                    animalRequestDTO.setAnimalType(AnimalType.values()[i]);
+                    answerCallbackQuery = replyMessageService.getPopUpAnswer(callBackId, "Тип животного " + AnimalType.values()[i].russianName + " установлен");
                 }
             }
-            for (int i = 0; i < roomTypes.length; i++) {
-                if (callBackData.equals(roomTypes[i].name)) {
-                    animalRequestDTO.setRoomType(roomTypes[i]);
-                    answerCallbackQuery = replyMessageService.getPopUpAnswer(callBackId, "Тип комнаты " + roomTypes[i].russianName + " установлен");
+            for (int i = 0; i < RoomType.values().length; i++) {
+                if (callBackData.equals(RoomType.values()[i].name)) {
+                    animalRequestDTO.setRoomType(RoomType.values()[i]);
+                    answerCallbackQuery = replyMessageService.getPopUpAnswer(callBackId, "Тип комнаты " + RoomType.values()[i].russianName + " установлен");
                 }
             }
             try {
@@ -93,7 +92,7 @@ public class ZooHotelBot extends TelegramLongPollingCommandBot {
         try {
             execute(answer);
         } catch (TelegramApiException e) {
-            //логируем сбой Telegram Bot API, используя userName
+            e.printStackTrace();
         }
     }
 

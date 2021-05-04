@@ -9,6 +9,7 @@ import enums.AnimalType;
 import enums.Location;
 import enums.RequestStatus;
 import enums.RoomType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.datetime.DateFormatter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -25,23 +26,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-
 public class AnimalRequestDTOService {
-
+    @Value("${url")
+    String url;
     Map<Long, AnimalRequestDTO> cachedAnimalRequestData = new HashMap<>();
 
     public AnimalRequestDTO findDTOByChatId(long chatId) {
-        AnimalRequestDTO animalRequestDTO;
-        if (cachedAnimalRequestData.containsKey(chatId)) {
-            animalRequestDTO = cachedAnimalRequestData.get(chatId);
-            animalRequestDTO.setRequestStatus(RequestStatus.NEW);
-        } else {
-            animalRequestDTO = new AnimalRequestDTO();
-            animalRequestDTO.setRequestStatus(RequestStatus.NEW);
-            cachedAnimalRequestData.put(chatId, animalRequestDTO);
-
-        }
-        return animalRequestDTO;
+//        AnimalRequestDTO animalRequestDTO;
+//        if (cachedAnimalRequestData.containsKey(chatId)) {
+//            animalRequestDTO = cachedAnimalRequestData.get(chatId);
+//            animalRequestDTO.setRequestStatus(RequestStatus.NEW);
+//        } else {
+//            animalRequestDTO = new AnimalRequestDTO();
+//            animalRequestDTO.setRequestStatus(RequestStatus.NEW);
+//            cachedAnimalRequestData.put(chatId, animalRequestDTO);
+//
+//        }
+        return cachedAnimalRequestData.putIfAbsent(chatId, createEmptyAnimalRequest());
     }
 
     public void sendDTO(long chatId) throws JsonProcessingException {
@@ -60,7 +61,12 @@ public class AnimalRequestDTOService {
 
         HttpEntity<String> entity = new HttpEntity<String>(gson.toJson(animalRequestDTO), headers);
 
-        String url = "http://localhost:8080/api/animalRequestPage";
-        String responseEntity = restTemplate.postForObject(url, entity,String.class);
+        String responseEntity = restTemplate.postForObject(url, entity, String.class);
+    }
+
+    private AnimalRequestDTO createEmptyAnimalRequest() {
+        AnimalRequestDTO animalRequestDTO = new AnimalRequestDTO();
+        animalRequestDTO.setRequestStatus(RequestStatus.NEW);
+        return animalRequestDTO;
     }
 }
